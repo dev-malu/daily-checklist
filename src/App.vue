@@ -1,102 +1,43 @@
-<script setup lang="ts">
-import { ref, computed } from 'vue';
+<script setup>
+import { ref } from 'vue'
 
-//counter
-const counter = ref(0);
-const incCount = () => {
-  counter.value++;
+const list = ref(JSON.parse(localStorage.getItem('list') || '[]'));
+const listItem = ref('');
+
+
+const addItem = () => {
+  list.value.push(listItem.value);
+  localStorage.setItem('list', JSON.stringify(list.value));
+  listItem.value = '';
 }
-const decCount = () => {
-  if (counter.value > 0)
-    counter.value--;
-}
-
-//color finder
-const color = ref('blue');
-
-const changeColor = computed(() => {
-  return `<span style="color: ${color.value}">This is ${color.value}</span>`
-});
-
-//color picker
-const selectedColor = ref('');
-
-//pick 4 colors
-const selectedColorPalatte = ref([]);
-const pickColor = ref('');
-
-const pickColors = () => {
-  console.log(selectedColorPalatte.value);
-  if (selectedColorPalatte.value.length >= 4) {
-    selectedColorPalatte.value.splice(0, 1);
-  }
-  selectedColorPalatte.value.push(pickColor.value);
+const deleteItem = (i) => {
+  list.value.splice(i, 1);
+  localStorage.setItem('list', JSON.stringify(list.value));
+  console.log(list.value);
 }
 </script>
 
 <template>
-  <div class="counterContainer">
-    <h2>Counter</h2>
-    <div class="counter">
-      <button @click="incCount">+</button>
-      <button>Count:{{ counter }} </button>
-      <button @click="decCount">-</button>
-    </div>
-  </div>
-
-  <div class="colorFindContainer">
-    <h2>Color Finder</h2>
-    <div class="colorFind">
-      <input type="text" placeholder="Type color" v-model="color">
-      <p v-html="changeColor"></p>
-    </div>
-  </div>
-
-  <div>
-    <h3>Color picker</h3>
+  <div class="add_checklist flex flex-col gap-5 m-5">
+    <h1 class="text-xl font-bold text-gray-500">Add Check list</h1>
     <div>
-      <input type="color" v-model="selectedColor">
-      <p :style="{ color: selectedColor }">This is {{ selectedColor }}</p>
+      <form class="flex gap-10 m-2 p-5 shadow-xl rounded-md w-1/2 bg-white" @submit.prevent="addItem">
+        <input class="border border-gray-200 p-2 w-full" type="text" placeholder="Enter checklist" v-model="listItem">
+        <button class="text-white bg-gray-600 rounded-md p-2 cursor-pointer" type="submit">Submit</button>
+      </form>
     </div>
   </div>
-
-  <div>
-    <h2>Pick 4 colors</h2>
-    <div>
-      <input type="color" v-model="pickColor" @change="pickColors()">
-      <div>
-        <h3>Selected colors</h3>
-        <div v-for="(colorValPal, index) in selectedColorPalatte" :key="index" :style="{
-          backgroundColor: colorValPal,
-          width: '50px',
-          height: '50px',
-          display: 'inline-block',
-          margin: '5px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)'
-        }"></div>
+  <div class="add_checklist flex flex-col gap-5 m-5">
+    <h1 class="text-xl font-bold text-gray-500">Check List</h1>
+    <div v-for="(check, index) in list" class="flex  m-1 p-2 shadow-xl rounded-md  justify-between w-1/4 bg-white">{{
+      check }}
+      <div class="flex  gap-3">
+        <span><input type="checkbox" name="check" class="border-2 border-blue-500  h-[18px] w-[20px]"></span>
+        <span><button class="text-white bg-gray-500 rounded-md px-2 cursor-pointer"
+            @click="deleteItem(index)">x</button></span>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-.counterContainer {
-
-  border: 0.2px solid grey;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-button {
-  padding: 8px;
-}
-
-.counter {
-  display: flex;
-  gap: 10px;
-}
-</style>
+<style scoped></style>
